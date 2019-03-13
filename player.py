@@ -1,11 +1,12 @@
 from deck import BaseDeck
 
+
 class BasePlayer(object):
     def __init__(self, player_id):
         self.id = player_id
         self.victory_point = 0
-        self.card_hand = []
-        self.card_board = []
+        self.hand = []
+        self.tableau = []
         self.phase_privilege = []
         self.military = 0
 
@@ -16,31 +17,39 @@ class BasePlayer(object):
     def verify_phase_cards(self):
         pass
 
-    def explore(self, game):
+    def draw_cards(self, game_deck, draw_count=1, keep_count=1):
+        temp_deck = BaseDeck()
+        for draw in range(draw_count):
+            game_deck.replenish_card_supply_if_exhausted()
+            temp_deck.card_supply.append(game_deck.card_supply.pop())
+
+        if draw_count == 1:
+            self.hand.append(game_deck.card_supply.pop())
+
+        else:
+            keep = 0
+            while keep < keep_count:
+                select_card = temp_deck.first_card_matching_string()
+                self.hand.append(select_card)
+                temp_deck.card_supply.pop(select_card)
+
+        game_deck.discard_pile.extend(temp_deck.card_supply)
+
+    def explore(self, game_deck):
+        """"""
         draw_count = 2
-        select_count = 1
+        keep_count = 1
 
         if 1 in self.phase_privilege:
             draw_count += 1
-            select_count += 1
+            keep_count += 1
 
-        draw_cards = BaseDeck()
-        for draw in range(draw_count):
-            game.deck.check_card_count()
-            draw_cards.deck.append(game.deck.pop())
+        for card in self.hand:
+            if card.has_explore_power:
+                draw_count += card.draw_extra
+                keep_count += card.keep_extra
 
-        select = 0
-        while select in range(select_count):
-            input_card = input('choose from: {}'.format(draw_cards.deck_names()))
-
-            if input_card in draw_cards:
-                self.card_hand.append(input_card)
-                self.draw_cards.deck.pop(input_card)
-            else:
-                print("""card is not available.
-                choose from : {}""".format(draw_cards.deck_names()))
-
-        game.deck.deck.append(self.draw_cards.deck)
+        self.draw_cards(game_deck, draw_count, keep_count)
 
 
     def develop(self):
@@ -51,6 +60,8 @@ class BasePlayer(object):
         remove from hand and place on board
         :return:
         """
+        card_name = 'secluded_world'
+        self.hand.pop()
         pass
 
     def settle(self):
@@ -69,7 +80,7 @@ class BasePlayer(object):
         pass
 
     def produce(self):
-        for card in self.card_hand:
+        for card in self.hand:
             if card.is_windfall == False:
                 card.has_production = True
 
