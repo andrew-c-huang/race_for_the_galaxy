@@ -164,5 +164,9 @@ class ExpeditionForce(Development, ExplorePower, SettlePower):
         SettlePower.__init__(self, military=1)
         self.name = 'expedition_force'
 
-
+class InvestmentCredits(Development, ExplorePower, DevelopPower):
+    def __init__(self):
+        Development.__init__(self, cost=1, vp=1)
+        DevelopPower.__init__(self, reduce_cost=1)
+        self.name = 'investment_credits'
 

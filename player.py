@@ -5,8 +5,8 @@ class BasePlayer(object):
     def __init__(self, player_id):
         self.id = player_id
         self.victory_point = 0
-        self.hand = []
-        self.tableau = []
+        self.hand = BaseDeck()
+        self.tableau = BaseDeck()
         self.phase_privilege = []
         self.military = 0
 
@@ -19,21 +19,21 @@ class BasePlayer(object):
 
     def draw_cards(self, game_deck, draw_count=1, keep_count=1):
         temp_deck = BaseDeck()
-        for draw in range(draw_count):
-            game_deck.replenish_card_supply_if_exhausted()
-            temp_deck.card_supply.append(game_deck.card_supply.pop())
+        for _ in range(draw_count):
+            temp_deck.add_card(game_deck.pop_card())
 
-        if draw_count == 1:
-            self.hand.append(game_deck.card_supply.pop())
+        # bypass the prompt if all drawn cards are kept
+        if draw_count == keep_count:
+            for _ in range(keep_count):
+                self.hand.add_card(temp_deck.pop_card())
 
         else:
             keep = 0
             while keep < keep_count:
-                select_card = temp_deck.first_card_matching_string()
-                self.hand.append(select_card)
-                temp_deck.card_supply.pop(select_card)
+                self.hand.add_card(temp_deck.remove_card_prompt())
 
-        game_deck.discard_pile.extend(temp_deck.card_supply)
+                keep += 1
+        game_deck.discard_pile.extend(temp_deck.deck)
 
     def explore(self, game_deck):
         """"""
@@ -44,7 +44,12 @@ class BasePlayer(object):
             draw_count += 1
             keep_count += 1
 
-        for card in self.hand:
+        for card in self.hand.deck:
+            if card.has_explore_power:
+                draw_count += card.draw_extra
+                keep_count += card.keep_extra
+
+        for card in self.tableau.deck:
             if card.has_explore_power:
                 draw_count += card.draw_extra
                 keep_count += card.keep_extra
@@ -54,14 +59,24 @@ class BasePlayer(object):
 
     def develop(self):
         """
-        activate card powers
         select development from hand
         pay cost
         remove from hand and place on board
         :return:
         """
-        card_name = 'secluded_world'
-        self.hand.pop()
+
+        if 1 in self.phase_privilege:
+            draw_count += 1
+            keep_count += 1
+
+        for card in self.hand.deck:
+            if card.has_explore_power:
+                draw_count += card.draw_extra
+                keep_count += card.keep_extra
+
+
+        self.draw_cards(game_deck, draw_count, keep_count)
+
         pass
 
     def settle(self):
