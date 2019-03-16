@@ -16,21 +16,28 @@ class BaseDeck(object):
     def pop_card(self):
         return self.deck.pop()
 
-    def add_card(self, card):
-        self.deck.append(card)
+    def add_cards(self, card):
+        if type(card) != list:
+            card = [card]
+        self.deck.extend(card)
 
-    def remove_card_prompt(self):
-        while True:
+    def remove_cards_prompt(self, number=1):
+        card_list = []
+        cards_removed = 0
+        while cards_removed < number:
             select_card = input('choose from: {}'.format(self.card_names()))
 
             if select_card in self.card_names():
                 card = self.card_from_name(select_card)
                 self.deck.remove(card)
-                return card
+                card_list.append(card)
+                cards_removed += 1
 
             else:
                 print("""card is not available.
                     choose from : {}""".format(self.card_names()))
+
+        return card_list
 
 class GameDeck(BaseDeck):
     def __init__(self, card_sets):
@@ -50,7 +57,7 @@ class GameDeck(BaseDeck):
         # create the cards
         for card_set in self.card_sets:
             for card in CARD_SET_LOOKUP[card_set]:
-                self.add_card(self.card_factory(card))
+                self.add_cards(self.card_factory(card))
         self.shuffle()
 
     def shuffle(self):
@@ -66,4 +73,6 @@ class GameDeck(BaseDeck):
         self.replenish_card_supply_if_exhausted()
         return self.deck.pop()
 
-CARD_SET_LOOKUP = {'base': ['SecludedWorld', 'WarriorRace', 'ExpeditionForce', 'InvestmentCredits']}
+
+CARD_SET_LOOKUP = {'base': ['SecludedWorld', 'WarriorRace', 'ExpeditionForce', 'InvestmentCredits',
+                            'InterstellarBank', 'ReplicantRobots']}

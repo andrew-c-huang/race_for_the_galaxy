@@ -164,9 +164,30 @@ class ExpeditionForce(Development, ExplorePower, SettlePower):
         SettlePower.__init__(self, military=1)
         self.name = 'expedition_force'
 
-class InvestmentCredits(Development, ExplorePower, DevelopPower):
+
+class InvestmentCredits(Development, DevelopPower):
     def __init__(self):
         Development.__init__(self, cost=1, vp=1)
         DevelopPower.__init__(self, reduce_cost=1)
         self.name = 'investment_credits'
 
+
+class InterstellarBank(Development, DevelopPower):
+    def __init__(self):
+        Development.__init__(self, cost=2, vp=1)
+        DevelopPower.__init__(self, draw=1)
+        self.name = 'interstellar_bank'
+
+
+class PublicWorks(Development, DevelopPower, ConsumePower):
+    def __init__(self):
+        Development.__init__(self, cost=1, vp=1)
+        DevelopPower.__init__(self, draw=1, draw_after=1)
+        ConsumePower.__init__(self, consume_card_cost=1, victory_point=1, discard_up_to=1)
+        self.name = 'public_works'
+
+class ReplicantRobots(Development, SettlePower):
+    def __init__(self):
+        Development.__init__(self, cost=4, vp=2)
+        SettlePower.__init__(self, reduce_cost=2)
+        self.name = 'replicant_robots'

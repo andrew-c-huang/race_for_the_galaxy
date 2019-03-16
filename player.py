@@ -20,20 +20,26 @@ class BasePlayer(object):
     def draw_cards(self, game_deck, draw_count=1, keep_count=1):
         temp_deck = BaseDeck()
         for _ in range(draw_count):
-            temp_deck.add_card(game_deck.pop_card())
+            temp_deck.add_cards(game_deck.pop_card())
 
         # bypass the prompt if all drawn cards are kept
         if draw_count == keep_count:
             for _ in range(keep_count):
-                self.hand.add_card(temp_deck.pop_card())
+                self.hand.add_cards(temp_deck.pop_card())
 
         else:
             keep = 0
             while keep < keep_count:
-                self.hand.add_card(temp_deck.remove_card_prompt())
+                self.hand.add_cards(temp_deck.remove_cards_prompt())
 
                 keep += 1
         game_deck.discard_pile.extend(temp_deck.deck)
+
+    def place_to_tableau(self, reduce_cost):
+        """ """
+        card_to_place = self.hand.remove_cards_prompt(number=1)
+        cards_to_pay = self.hand.remove_cards_prompt(number=card_to_place[0].cost - reduce_cost)
+        self.tableau.add_cards(card_to_place)
 
     def explore(self, game_deck):
         """"""
@@ -64,20 +70,20 @@ class BasePlayer(object):
         remove from hand and place on board
         :return:
         """
-
-        if 1 in self.phase_privilege:
-            draw_count += 1
-            keep_count += 1
+        reduce_cost = 0
+        if 2 in self.phase_privilege:
+            reduce_cost += 1
 
         for card in self.hand.deck:
-            if card.has_explore_power:
-                draw_count += card.draw_extra
-                keep_count += card.keep_extra
+            if card.has_develop_power:
+                reduce_cost += card.reduce_cost
 
+        for card in self.tableau.deck:
+            if card.has_develop_power:
+                reduce_cost += card.reduce_cost
 
-        self.draw_cards(game_deck, draw_count, keep_count)
-
-        pass
+        # TODO: check card to place is a development
+        self.place_to_tableau(reduce_cost=reduce_cost)
 
     def settle(self):
         """
